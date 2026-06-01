@@ -1,0 +1,1736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stockify — Business Case & Requirements</title>
+  <style>
+    /* ── Reset ───────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:           #f8f9fb;
+      --white:        #ffffff;
+      --surface:      #f1f3f7;
+      --border:       #e1e5ed;
+      --border-dark:  #c9d0de;
+      --navy:         #0f1f3d;
+      --navy-mid:     #1a3460;
+      --blue:         #1d5fc4;
+      --blue-light:   #e8f0fb;
+      --blue-mid:     #3b7de8;
+      --green:        #127f56;
+      --green-light:  #e6f4ee;
+      --orange:       #c25d0a;
+      --orange-light: #fef3e8;
+      --red:          #b91c1c;
+      --red-light:    #fef2f2;
+      --purple:       #6d28d9;
+      --purple-light: #f5f3ff;
+      --text:         #1a2035;
+      --text-mid:     #3d4966;
+      --text-muted:   #6b7a9b;
+      --text-dim:     #9aa3bc;
+      --gold:         #b59a00;
+      --gold-light:   #fefce8;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Georgia", "Times New Roman", serif;
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
+    /* ── Page shell ──────────────────────────────────────────────── */
+    .page-wrap { max-width: 960px; margin: 0 auto; padding: 0 28px 80px; }
+
+    /* ── Cover page ──────────────────────────────────────────────── */
+    .cover {
+      background: var(--navy);
+      margin: 0 -28px;
+      padding: 64px 60px 52px;
+      position: relative;
+      overflow: hidden;
+    }
+    .cover::before {
+      content: "";
+      position: absolute; top: 0; right: 0;
+      width: 400px; height: 400px;
+      background: radial-gradient(circle at top right, rgba(61,125,232,.3) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .cover::after {
+      content: "";
+      position: absolute; bottom: 0; left: 0;
+      width: 300px; height: 200px;
+      background: radial-gradient(circle at bottom left, rgba(29,95,196,.2) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .cover-label {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 11px; font-weight: 700; letter-spacing: .18em;
+      text-transform: uppercase; color: rgba(255,255,255,.45);
+      margin-bottom: 20px;
+    }
+    .cover h1 {
+      font-size: 46px; font-weight: 700; color: #ffffff;
+      line-height: 1.1; margin-bottom: 12px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    .cover-sub {
+      font-size: 18px; color: rgba(255,255,255,.65);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin-bottom: 40px; max-width: 560px;
+    }
+    .cover-meta {
+      display: flex; gap: 40px; flex-wrap: wrap;
+    }
+    .cover-meta-item { }
+    .cover-meta-key {
+      font-size: 10px; font-weight: 700; letter-spacing: .14em;
+      text-transform: uppercase; color: rgba(255,255,255,.35);
+      font-family: -apple-system, sans-serif; margin-bottom: 3px;
+    }
+    .cover-meta-val {
+      font-size: 14px; color: rgba(255,255,255,.8);
+      font-family: -apple-system, sans-serif; font-weight: 500;
+    }
+    .cover-rule {
+      border: none; border-top: 1px solid rgba(255,255,255,.12);
+      margin: 36px 0 32px;
+    }
+    .cover-status {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15);
+      border-radius: 6px; padding: 6px 14px;
+      font-family: -apple-system, sans-serif; font-size: 12px; font-weight: 600;
+      color: rgba(255,255,255,.7); letter-spacing: .04em;
+    }
+    .cover-status-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: #4ade80; box-shadow: 0 0 6px #4ade80;
+    }
+
+    /* ── TOC ─────────────────────────────────────────────────────── */
+    .toc-section {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: 10px; padding: 28px 32px; margin: 36px 0 48px;
+    }
+    .toc-title {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 11px; font-weight: 700; letter-spacing: .14em;
+      text-transform: uppercase; color: var(--text-muted);
+      margin-bottom: 18px;
+    }
+    .toc-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 4px 32px;
+    }
+    .toc-row {
+      display: flex; align-items: baseline; gap: 0;
+      padding: 5px 0; border-bottom: 1px dotted var(--border);
+    }
+    .toc-row:last-child { border-bottom: none; }
+    .toc-num {
+      font-family: -apple-system, sans-serif; font-size: 11px;
+      font-weight: 700; color: var(--blue); min-width: 28px;
+    }
+    .toc-row a {
+      font-family: -apple-system, sans-serif; font-size: 13px;
+      color: var(--text-mid); text-decoration: none; flex: 1;
+    }
+    .toc-row a:hover { color: var(--blue); }
+    .toc-page {
+      font-family: -apple-system, sans-serif; font-size: 11px;
+      color: var(--text-dim); min-width: 20px; text-align: right;
+    }
+
+    /* ── Section ─────────────────────────────────────────────────── */
+    .section { margin-bottom: 56px; }
+    .section-header {
+      display: flex; align-items: flex-start; gap: 0;
+      margin-bottom: 24px;
+      padding-bottom: 14px;
+      border-bottom: 2px solid var(--navy);
+    }
+    .section-num-block {
+      background: var(--navy); color: #fff;
+      font-family: -apple-system, sans-serif; font-size: 12px; font-weight: 700;
+      padding: 4px 10px; border-radius: 4px; margin-right: 14px;
+      margin-top: 4px; flex-shrink: 0; letter-spacing: .04em;
+    }
+    .section-header h2 {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 24px; font-weight: 700; color: var(--navy);
+      line-height: 1.25;
+    }
+    .section-header .section-desc {
+      font-family: -apple-system, sans-serif; font-size: 13px;
+      color: var(--text-muted); margin-top: 3px;
+    }
+    h3.sub-heading {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 14px; font-weight: 700; color: var(--navy-mid);
+      letter-spacing: .03em; text-transform: uppercase;
+      margin: 28px 0 12px; padding-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ── Body text ───────────────────────────────────────────────── */
+    p { margin-bottom: 14px; color: var(--text-mid); }
+    p strong { color: var(--text); }
+
+    /* ── Callouts ────────────────────────────────────────────────── */
+    .callout {
+      border-radius: 8px; padding: 16px 20px; font-family: -apple-system, sans-serif;
+      font-size: 13.5px; display: flex; gap: 14px; align-items: flex-start;
+      margin: 20px 0; line-height: 1.6;
+    }
+    .callout-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+    .callout-body { color: var(--text-mid); }
+    .callout-body strong { color: var(--text); }
+    .callout-blue   { background: var(--blue-light);   border-left: 4px solid var(--blue);   }
+    .callout-green  { background: var(--green-light);  border-left: 4px solid var(--green);  }
+    .callout-orange { background: var(--orange-light); border-left: 4px solid var(--orange); }
+    .callout-red    { background: var(--red-light);    border-left: 4px solid var(--red);    }
+    .callout-gold   { background: var(--gold-light);   border-left: 4px solid var(--gold);   }
+    .callout-purple { background: var(--purple-light); border-left: 4px solid var(--purple); }
+
+    /* ── KPI cards ───────────────────────────────────────────────── */
+    .kpi-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px; margin-bottom: 24px; }
+    .kpi-card {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: 10px; padding: 18px 20px;
+      font-family: -apple-system, sans-serif;
+    }
+    .kpi-label { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+    .kpi-value { font-size: 28px; font-weight: 700; color: var(--navy); line-height: 1; margin-bottom: 4px; font-variant-numeric: tabular-nums; }
+    .kpi-sub   { font-size: 11px; color: var(--text-dim); }
+    .kpi-green .kpi-value { color: var(--green); }
+    .kpi-blue  .kpi-value { color: var(--blue);  }
+    .kpi-orange.kpi-value { color: var(--orange); }
+
+    /* ── Tables ──────────────────────────────────────────────────── */
+    .tbl-wrap {
+      border: 1px solid var(--border); border-radius: 10px; overflow: hidden;
+      margin: 0 0 24px; overflow-x: auto; font-family: -apple-system, sans-serif;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    thead tr { background: var(--navy); }
+    thead th {
+      text-align: left; padding: 10px 16px;
+      font-size: 11px; font-weight: 700; letter-spacing: .1em;
+      text-transform: uppercase; color: rgba(255,255,255,.75);
+    }
+    tbody tr { border-bottom: 1px solid var(--border); background: var(--white); }
+    tbody tr:nth-child(even) { background: #fafbfd; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody td { padding: 10px 16px; color: var(--text-mid); vertical-align: top; line-height: 1.5; }
+    tbody td:first-child { color: var(--text); font-weight: 600; }
+    .td-green  { color: var(--green)  !important; font-weight: 600 !important; }
+    .td-red    { color: var(--red)    !important; font-weight: 600 !important; }
+    .td-orange { color: var(--orange) !important; font-weight: 600 !important; }
+    .td-blue   { color: var(--blue)   !important; font-weight: 600 !important; }
+    .highlight-row { background: var(--blue-light) !important; }
+    .highlight-row td:first-child::after { content: " ★"; color: var(--blue); font-size: 11px; font-weight: 400; }
+
+    /* ── Pill / tag ──────────────────────────────────────────────── */
+    .tag {
+      display: inline-block; padding: 2px 9px; border-radius: 12px;
+      font-family: -apple-system, sans-serif; font-size: 11px; font-weight: 700;
+      letter-spacing: .04em; white-space: nowrap;
+    }
+    .tag-green  { background: var(--green-light);  color: var(--green);  border: 1px solid #a7f3d0; }
+    .tag-red    { background: var(--red-light);    color: var(--red);    border: 1px solid #fecaca; }
+    .tag-orange { background: var(--orange-light); color: var(--orange); border: 1px solid #fed7aa; }
+    .tag-blue   { background: var(--blue-light);   color: var(--blue);   border: 1px solid #bfdbfe; }
+    .tag-purple { background: var(--purple-light); color: var(--purple); border: 1px solid #ddd6fe; }
+    .tag-gold   { background: var(--gold-light);   color: var(--gold);   border: 1px solid #fef08a; }
+    .tag-navy   { background: var(--navy);         color: #fff; }
+
+    /* ── Requirement cards ───────────────────────────────────────── */
+    .req-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
+    .req-card {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: 8px; display: flex; gap: 0; overflow: hidden;
+      font-family: -apple-system, sans-serif;
+    }
+    .req-id {
+      background: var(--surface); border-right: 1px solid var(--border);
+      padding: 14px 16px; min-width: 80px; text-align: center;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+    }
+    .req-id-code { font-size: 12px; font-weight: 700; color: var(--navy); }
+    .req-id-pri  { font-size: 10px; color: var(--text-muted); margin-top: 4px; }
+    .req-body    { padding: 14px 18px; flex: 1; }
+    .req-title   { font-size: 14px; font-weight: 700; color: var(--navy); margin-bottom: 4px; }
+    .req-desc    { font-size: 13px; color: var(--text-muted); line-height: 1.55; }
+    .req-tags    { margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap; }
+
+    /* ── Cost summary box ────────────────────────────────────────── */
+    .cost-hero {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+      border-radius: 12px; padding: 36px 40px; margin-bottom: 28px;
+      color: white; display: flex; justify-content: space-between;
+      align-items: flex-start; flex-wrap: wrap; gap: 28px;
+    }
+    .cost-hero-left { max-width: 380px; }
+    .cost-hero-eyebrow {
+      font-family: -apple-system, sans-serif; font-size: 10px;
+      font-weight: 700; letter-spacing: .18em; text-transform: uppercase;
+      color: rgba(255,255,255,.45); margin-bottom: 8px;
+    }
+    .cost-hero-title {
+      font-family: -apple-system, sans-serif; font-size: 16px;
+      font-weight: 700; color: rgba(255,255,255,.9); margin-bottom: 8px;
+    }
+    .cost-hero-sub {
+      font-family: -apple-system, sans-serif; font-size: 13px;
+      color: rgba(255,255,255,.55); line-height: 1.6;
+    }
+    .cost-hero-scenarios { display: flex; gap: 16px; flex-wrap: wrap; }
+    .cost-scenario {
+      background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15);
+      border-radius: 8px; padding: 16px 22px; min-width: 140px;
+      font-family: -apple-system, sans-serif;
+    }
+    .cost-scenario-name {
+      font-size: 10px; font-weight: 700; letter-spacing: .12em;
+      text-transform: uppercase; color: rgba(255,255,255,.4); margin-bottom: 6px;
+    }
+    .cost-scenario-val { font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .cost-scenario-sub { font-size: 11px; color: rgba(255,255,255,.4); margin-top: 3px; }
+    .cs-green  { color: #4ade80; }
+    .cs-yellow { color: #facc15; }
+    .cs-red    { color: #f87171; }
+
+    /* ── Decision cards ──────────────────────────────────────────── */
+    .decision-card {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: 10px; margin-bottom: 20px; overflow: hidden;
+      font-family: -apple-system, sans-serif;
+    }
+    .decision-header {
+      background: var(--navy); padding: 16px 22px;
+      display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    }
+    .decision-num {
+      background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.2);
+      color: rgba(255,255,255,.8); font-size: 12px; font-weight: 700;
+      padding: 2px 10px; border-radius: 4px; letter-spacing: .06em; flex-shrink: 0;
+    }
+    .decision-title { font-size: 16px; font-weight: 700; color: #fff; flex: 1; }
+    .decision-urgency { flex-shrink: 0; }
+    .decision-body  { padding: 20px 22px; }
+    .decision-context { font-size: 14px; color: var(--text-mid); margin-bottom: 16px; line-height: 1.65; }
+    .decision-options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+    .decision-option {
+      border: 1px solid var(--border); border-radius: 7px; padding: 12px 16px;
+      display: flex; gap: 14px; align-items: flex-start;
+    }
+    .decision-option.recommended {
+      border-color: var(--blue); background: var(--blue-light);
+    }
+    .option-label {
+      font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 4px;
+      flex-shrink: 0; margin-top: 2px;
+    }
+    .opt-a { background: #e0e7ff; color: #4338ca; }
+    .opt-b { background: #dcfce7; color: #166534; }
+    .opt-c { background: #fef9c3; color: #854d0e; }
+    .opt-rec { background: var(--blue); color: #fff; }
+    .option-content { flex: 1; }
+    .option-title { font-size: 14px; font-weight: 600; color: var(--navy); margin-bottom: 3px; }
+    .option-desc  { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+    .option-cost  { font-size: 12px; font-weight: 600; color: var(--green); margin-top: 4px; }
+    .decision-footer {
+      background: var(--surface); border-top: 1px solid var(--border);
+      padding: 12px 22px; display: flex; align-items: center; gap: 10px;
+      font-size: 13px; color: var(--text-muted);
+    }
+    .decision-footer strong { color: var(--navy); }
+    .decision-owner {
+      margin-left: auto; display: flex; align-items: center; gap: 6px;
+      font-size: 12px;
+    }
+    .owner-avatar {
+      width: 24px; height: 24px; border-radius: 50%;
+      background: var(--navy); color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 700;
+    }
+
+    /* ── Timeline (business) ─────────────────────────────────────── */
+    .milestone-row {
+      display: grid; grid-template-columns: 120px 1fr; gap: 0;
+      margin-bottom: 0;
+    }
+    .milestone-time {
+      padding: 20px 20px 20px 0; text-align: right; position: relative;
+    }
+    .milestone-time::after {
+      content: ""; position: absolute; right: -6px; top: 26px;
+      width: 12px; height: 12px; border-radius: 50%;
+      border: 3px solid var(--navy); background: var(--white);
+      z-index: 2;
+    }
+    .milestone-time-label {
+      font-family: -apple-system, sans-serif; font-size: 12px;
+      font-weight: 700; color: var(--navy);
+    }
+    .milestone-time-sub {
+      font-family: -apple-system, sans-serif; font-size: 11px;
+      color: var(--text-muted);
+    }
+    .milestone-body {
+      border-left: 2px solid var(--border); padding: 14px 0 28px 28px;
+    }
+    .milestone-card {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: 8px; padding: 16px 20px; max-width: 580px;
+    }
+    .milestone-card-title {
+      font-family: -apple-system, sans-serif; font-size: 15px;
+      font-weight: 700; color: var(--navy); margin-bottom: 6px;
+    }
+    .milestone-card-desc {
+      font-family: -apple-system, sans-serif; font-size: 13px;
+      color: var(--text-muted); line-height: 1.6; margin-bottom: 10px;
+    }
+    .milestone-deliverables {
+      list-style: none; padding: 0;
+    }
+    .milestone-deliverables li {
+      font-family: -apple-system, sans-serif; font-size: 12.5px;
+      color: var(--text-muted); padding: 3px 0;
+      display: flex; align-items: baseline; gap: 7px;
+    }
+    .milestone-deliverables li::before {
+      content: "✓"; color: var(--green); font-weight: 700; flex-shrink: 0;
+    }
+
+    /* ── Risk register ───────────────────────────────────────────── */
+    .risk-matrix {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px; margin-bottom: 24px;
+    }
+    .risk-card {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: 8px; overflow: hidden; font-family: -apple-system, sans-serif;
+    }
+    .risk-card-header {
+      padding: 10px 16px; display: flex; justify-content: space-between; align-items: center;
+      border-bottom: 1px solid var(--border);
+    }
+    .risk-card-title { font-size: 13px; font-weight: 700; color: var(--navy); }
+    .risk-card-body  { padding: 12px 16px; font-size: 13px; color: var(--text-muted); line-height: 1.55; }
+    .risk-card-footer { padding: 8px 16px; background: var(--surface); border-top: 1px solid var(--border); font-size: 12px; color: var(--text-dim); }
+
+    /* ── Success metrics ─────────────────────────────────────────── */
+    .metric-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; margin-bottom: 24px; }
+    .metric-card {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: 8px; padding: 16px 18px; font-family: -apple-system, sans-serif;
+    }
+    .metric-phase { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+    .metric-name  { font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 4px; }
+    .metric-target{ font-size: 13px; color: var(--green); font-weight: 600; }
+    .metric-basis { font-size: 11px; color: var(--text-dim); margin-top: 3px; }
+
+    /* ── Stakeholder RACI ────────────────────────────────────────── */
+    .raci-dot {
+      display: inline-flex; width: 22px; height: 22px; border-radius: 50%;
+      align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700;
+    }
+    .raci-r { background: var(--navy);         color: #fff; }
+    .raci-a { background: var(--blue-light);   color: var(--blue);   border: 1px solid var(--blue); }
+    .raci-c { background: var(--green-light);  color: var(--green);  border: 1px solid var(--green); }
+    .raci-i { background: var(--surface);      color: var(--text-muted); border: 1px solid var(--border); }
+
+    /* ── Assumptions list ────────────────────────────────────────── */
+    .assumption-list { list-style: none; padding: 0; }
+    .assumption-list li {
+      font-family: -apple-system, sans-serif; font-size: 13.5px;
+      color: var(--text-mid); padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      display: flex; gap: 12px; align-items: flex-start; line-height: 1.55;
+    }
+    .assumption-list li:last-child { border-bottom: none; }
+    .assumption-list li::before {
+      content: "A" counter(assumption-counter);
+      counter-increment: assumption-counter;
+      background: var(--navy-mid); color: #fff;
+      font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px;
+      flex-shrink: 0; margin-top: 2px; font-variant-numeric: tabular-nums;
+    }
+    .assumption-list { counter-reset: assumption-counter; }
+
+    /* ── Footer ──────────────────────────────────────────────────── */
+    .footer {
+      border-top: 2px solid var(--border); padding-top: 28px; margin-top: 64px;
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
+    }
+    .footer-left { font-family: -apple-system, sans-serif; font-size: 12px; color: var(--text-muted); }
+    .footer-left strong { color: var(--navy); }
+    .footer-right { font-family: -apple-system, sans-serif; font-size: 11px; color: var(--text-dim); }
+    .footer-confidential {
+      background: var(--orange-light); border: 1px solid #fed7aa;
+      color: var(--orange); padding: 3px 10px; border-radius: 4px;
+      font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+    }
+
+    @media (max-width: 640px) {
+      .cover { padding: 40px 28px 36px; }
+      .cover h1 { font-size: 32px; }
+      .toc-grid { grid-template-columns: 1fr; }
+      .risk-matrix { grid-template-columns: 1fr; }
+      .cost-hero { flex-direction: column; }
+      .milestone-row { grid-template-columns: 80px 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="page-wrap">
+
+  <!-- ── Cover ─────────────────────────────────────────────────────── -->
+  <div class="cover">
+    <div class="cover-label">Business Requirements Document · Confidential</div>
+    <h1>Stockify</h1>
+    <p class="cover-sub">
+      A real-time stock intelligence platform combining live market data,
+      sentiment signals from news and social media, and machine learning–based
+      price prediction.
+    </p>
+    <hr class="cover-rule" />
+    <div class="cover-meta">
+      <div class="cover-meta-item">
+        <div class="cover-meta-key">Document Version</div>
+        <div class="cover-meta-val">1.0 — Draft for Review</div>
+      </div>
+      <div class="cover-meta-item">
+        <div class="cover-meta-key">Date</div>
+        <div class="cover-meta-val">June 2026</div>
+      </div>
+      <div class="cover-meta-item">
+        <div class="cover-meta-key">Owner</div>
+        <div class="cover-meta-val">Kshitij Pathak</div>
+      </div>
+      <div class="cover-meta-item">
+        <div class="cover-meta-key">Project Status</div>
+        <div class="cover-meta-val">
+          <span class="cover-status">
+            <span class="cover-status-dot"></span>
+            In Planning
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Table of Contents ─────────────────────────────────────────── -->
+  <div class="toc-section">
+    <div class="toc-title">Table of Contents</div>
+    <div class="toc-grid">
+      <div class="toc-row"><span class="toc-num">1.</span><a href="#exec-summary">Executive Summary</a></div>
+      <div class="toc-row"><span class="toc-num">6.</span><a href="#cost">Cost Plan</a></div>
+      <div class="toc-row"><span class="toc-num">2.</span><a href="#problem">Problem Statement & Opportunity</a></div>
+      <div class="toc-row"><span class="toc-num">7.</span><a href="#timeline">Delivery Milestones</a></div>
+      <div class="toc-row"><span class="toc-num">3.</span><a href="#requirements">Business Requirements</a></div>
+      <div class="toc-row"><span class="toc-num">8.</span><a href="#risks">Risk Register</a></div>
+      <div class="toc-row"><span class="toc-num">4.</span><a href="#success">Success Metrics</a></div>
+      <div class="toc-row"><span class="toc-num">9.</span><a href="#assumptions">Assumptions & Constraints</a></div>
+      <div class="toc-row"><span class="toc-num">5.</span><a href="#stakeholders">Stakeholders & Governance</a></div>
+      <div class="toc-row"><span class="toc-num">10.</span><a href="#decisions">Decisions Required</a></div>
+    </div>
+  </div>
+
+  <!-- ── 1. Executive Summary ──────────────────────────────────────── -->
+  <div class="section" id="exec-summary">
+    <div class="section-header">
+      <div class="section-num-block">01</div>
+      <div>
+        <h2>Executive Summary</h2>
+        <div class="section-desc">One-page overview for senior stakeholders</div>
+      </div>
+    </div>
+
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-label">Min. Monthly Cost</div>
+        <div class="kpi-value kpi-green">$0</div>
+        <div class="kpi-sub">Using free API tiers, local infra</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Production Cost</div>
+        <div class="kpi-value" style="font-size:22px;color:var(--orange);">~$35–60</div>
+        <div class="kpi-sub">Per month on a VPS</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">MVP Delivery</div>
+        <div class="kpi-value kpi-blue" style="font-size:20px;">7 Weeks</div>
+        <div class="kpi-sub">Phases 1–3 complete</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Full Build</div>
+        <div class="kpi-value kpi-blue" style="font-size:20px;">10–14 Wks</div>
+        <div class="kpi-sub">All phases including ML</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Open Decisions</div>
+        <div class="kpi-value" style="color:var(--red);">6</div>
+        <div class="kpi-sub">Blocking or near-term</div>
+      </div>
+    </div>
+
+    <p>
+      <strong>Stockify</strong> is a personal software project to build an end-to-end stock intelligence platform.
+      It will ingest live market prices, enrich them with sentiment signals derived from financial news
+      and social media, and produce short-horizon directional price predictions using machine learning.
+    </p>
+    <p>
+      The platform is built on proven, industry-grade open-source technology already partially scaffolded
+      (Spring Boot, Apache Kafka, Prometheus). The total infrastructure cost ranges from
+      <strong>$0/month</strong> on a developer laptop to <strong>$35–60/month</strong> on a cloud server —
+      a fraction of equivalent commercial data subscriptions ($300–2,000+/month).
+    </p>
+    <p>
+      Six business decisions need to be made before or during the build. These are documented in
+      Section 10 with recommended options and the financial and operational impact of each choice.
+    </p>
+
+    <div class="callout callout-gold">
+      <span class="callout-icon">⚡</span>
+      <div class="callout-body">
+        <strong>Key caveat for any business use of predictions:</strong> academic research consistently
+        shows that short-horizon stock price prediction accuracy rarely exceeds 55–58% on liquid
+        markets. Stockify's prediction module is a signal tool, not a guaranteed edge. Any decision
+        to act on outputs should be made with that baseline in mind.
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 2. Problem Statement ───────────────────────────────────────── -->
+  <div class="section" id="problem">
+    <div class="section-header">
+      <div class="section-num-block">02</div>
+      <div>
+        <h2>Problem Statement &amp; Opportunity</h2>
+        <div class="section-desc">Why this project exists</div>
+      </div>
+    </div>
+
+    <h3 class="sub-heading">The Problem</h3>
+    <p>
+      Retail investors and individual traders lack affordable access to the kind of real-time, multi-signal
+      intelligence that institutional desks take for granted. Commercial platforms offering live data,
+      news sentiment, and predictive analytics charge <strong>$300–$3,000+ per month</strong> per user.
+      Free tools provide fragmented, delayed, or low-quality data with no aggregation layer.
+    </p>
+    <p>
+      Even for personal use — tracking a watchlist, understanding why a stock is moving, or stress-testing
+      a thesis against social sentiment — there is no cohesive, self-owned toolchain that a software
+      engineer can build, control, and extend.
+    </p>
+
+    <h3 class="sub-heading">The Opportunity</h3>
+    <p>
+      A combination of free and low-cost market data APIs, open-source time-series databases, and
+      open-weight NLP models means this capability can now be self-built for near-zero marginal cost.
+      Stockify captures this opportunity by assembling a production-grade pipeline that:
+    </p>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Capability</th><th>Commercial Cost</th><th>Stockify Cost</th><th>How</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Real-time price feed</td>
+            <td class="td-red">$30–200/mo</td>
+            <td class="td-green">$0</td>
+            <td>Finnhub free WebSocket (50 symbols)</td>
+          </tr>
+          <tr>
+            <td>Financial news aggregation</td>
+            <td class="td-red">$99–450/mo</td>
+            <td class="td-green">$0</td>
+            <td>Finnhub News + RSS feeds</td>
+          </tr>
+          <tr>
+            <td>Social sentiment signal</td>
+            <td class="td-red">$200–500/mo</td>
+            <td class="td-green">$0</td>
+            <td>StockTwits + Reddit (free APIs)</td>
+          </tr>
+          <tr>
+            <td>Sentiment NLP scoring</td>
+            <td class="td-red">$50–300/mo</td>
+            <td class="td-green">$0</td>
+            <td>VADER (local) / FinBERT (local)</td>
+          </tr>
+          <tr>
+            <td>Historical data storage</td>
+            <td class="td-red">$20–100/mo</td>
+            <td class="td-green">$0–5/mo</td>
+            <td>TimescaleDB on local disk or VPS</td>
+          </tr>
+          <tr>
+            <td>Price prediction signal</td>
+            <td class="td-red">$300–1,000/mo</td>
+            <td class="td-green">$0</td>
+            <td>Self-trained LightGBM on own data</td>
+          </tr>
+          <tr style="font-weight:700;">
+            <td>Total equivalent commercial cost</td>
+            <td class="td-red">$700–2,550/mo</td>
+            <td class="td-green">$0–60/mo</td>
+            <td>Self-hosted open-source stack</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── 3. Business Requirements ──────────────────────────────────── -->
+  <div class="section" id="requirements">
+    <div class="section-header">
+      <div class="section-num-block">03</div>
+      <div>
+        <h2>Business Requirements</h2>
+        <div class="section-desc">What the system must do — prioritised by value</div>
+      </div>
+    </div>
+
+    <h3 class="sub-heading">Must Have — Phase 1 & 2</h3>
+    <div class="req-list">
+      <div class="req-card">
+        <div class="req-id"><div class="req-id-code">BR-01</div><div class="req-id-pri">P1</div></div>
+        <div class="req-body">
+          <div class="req-title">Real-Time Price Monitoring</div>
+          <div class="req-desc">The system shall ingest live stock quotes for a configurable watchlist of symbols and make the latest price available within 5 seconds of the exchange tick.</div>
+          <div class="req-tags"><span class="tag tag-navy">Must Have</span><span class="tag tag-blue">Phase 1</span></div>
+        </div>
+      </div>
+      <div class="req-card">
+        <div class="req-id"><div class="req-id-code">BR-02</div><div class="req-id-pri">P1</div></div>
+        <div class="req-body">
+          <div class="req-title">Historical Price Storage</div>
+          <div class="req-desc">All ingested prices shall be persisted with full timestamp fidelity. The system must support querying any date range at 1-minute, 5-minute, 1-hour, and 1-day resolution.</div>
+          <div class="req-tags"><span class="tag tag-navy">Must Have</span><span class="tag tag-blue">Phase 2</span></div>
+        </div>
+      </div>
+      <div class="req-card">
+        <div class="req-id"><div class="req-id-code">BR-03</div><div class="req-id-pri">P1</div></div>
+        <div class="req-body">
+          <div class="req-title">Data API Access</div>
+          <div class="req-desc">All data (prices, sentiment, predictions) must be accessible via a documented REST API and a live WebSocket stream, enabling integration with external dashboards or tools.</div>
+          <div class="req-tags"><span class="tag tag-navy">Must Have</span><span class="tag tag-blue">Phase 2–5</span></div>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="sub-heading">Should Have — Phase 3</h3>
+    <div class="req-list">
+      <div class="req-card">
+        <div class="req-id"><div class="req-id-code">BR-04</div><div class="req-id-pri">P2</div></div>
+        <div class="req-body">
+          <div class="req-title">News Sentiment Scoring</div>
+          <div class="req-desc">The system shall fetch financial news articles for each tracked symbol at a minimum 15-minute interval, score each article's sentiment (bearish / neutral / bullish), and attach a rolling aggregate score to each symbol.</div>
+          <div class="req-tags"><span class="tag tag-orange">Should Have</span><span class="tag tag-blue">Phase 3</span></div>
+        </div>
+      </div>
+      <div class="req-card">
+        <div class="req-id"><div class="req-id-code">BR-05</div><div class="req-id-pri">P2</div></div>
+        <div class="req-body">
+          <div class="req-title">Social Media Sentiment Scoring</div>
+          <div class="req-desc">The system shall collect posts from at least one social media platform (StockTwits minimum), score sentiment per post, and provide a per-symbol social sentiment time series.</div>
+          <div class="req-tags"><span class="tag tag-orange">Should Have</span><span class="tag tag-blue">Phase 3</span></div>
+        </div>
+      </div>
+      <div class="req-card">
+        <div class="req-id"><div class="req-id-code">BR-06</div><div class="req-id-pri">P2</div></div>
+        <div class="req-body">
+          <div class="req-title">System Health Monitoring</div>
+          <div class="req-desc">The platform must expose operational health metrics (ingestion rate, data staleness, API latency) and alert when data pipelines stall for more than 2 minutes.</div>
+          <div class="req-tags"><span class="tag tag-orange">Should Have</span><span class="tag tag-blue">Phase 3–5</span></div>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="sub-heading">Nice to Have — Phase 4+</h3>
+    <div class="req-list">
+      <div class="req-card">
+        <div class="req-id"><div class="req-id-code">BR-07</div><div class="req-id-pri">P3</div></div>
+        <div class="req-body">
+          <div class="req-title">Directional Price Prediction</div>
+          <div class="req-desc">The system shall produce a short-horizon (1-hour or end-of-day) directional signal (up / neutral / down) with a confidence score, combining price features and sentiment signals. Predictions must be stored for backtesting accuracy review.</div>
+          <div class="req-tags"><span class="tag tag-purple">Nice to Have</span><span class="tag tag-blue">Phase 4</span></div>
+        </div>
+      </div>
+      <div class="req-card">
+        <div class="req-id"><div class="req-id-code">BR-08</div><div class="req-id-pri">P3</div></div>
+        <div class="req-body">
+          <div class="req-title">Reddit Integration</div>
+          <div class="req-desc">Extend social sentiment coverage to Reddit (r/stocks, r/wallstreetbets) to capture retail investor crowd sentiment that complements StockTwits.</div>
+          <div class="req-tags"><span class="tag tag-purple">Nice to Have</span><span class="tag tag-blue">Phase 3+</span></div>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="sub-heading">Out of Scope (for this version)</h3>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Item</th><th>Reason</th></tr></thead>
+        <tbody>
+          <tr><td>Automated trading / order execution</td><td>Requires brokerage API integration, compliance, and capital risk management — separate project</td></tr>
+          <tr><td>Options or derivatives data</td><td>Significant data cost and model complexity; out of scope for MVP</td></tr>
+          <tr><td>Multi-user access / authentication</td><td>Personal use only in v1; can be added later with Spring Security</td></tr>
+          <tr><td>Mobile application</td><td>Web API + WebSocket is the delivery layer; mobile is a consumer of that API</td></tr>
+          <tr><td>Regulatory / compliance filings</td><td>Not applicable for personal-use tooling</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── 4. Success Metrics ─────────────────────────────────────────── -->
+  <div class="section" id="success">
+    <div class="section-header">
+      <div class="section-num-block">04</div>
+      <div>
+        <h2>Success Metrics</h2>
+        <div class="section-desc">How we know the project is working</div>
+      </div>
+    </div>
+    <div class="metric-grid">
+      <div class="metric-card">
+        <div class="metric-phase">Phase 1 — Ingestion</div>
+        <div class="metric-name">Price Freshness</div>
+        <div class="metric-target">≤ 5 seconds</div>
+        <div class="metric-basis">Latest quote age at any time</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-phase">Phase 1 — Ingestion</div>
+        <div class="metric-name">Ingestion Uptime</div>
+        <div class="metric-target">&gt; 95%</div>
+        <div class="metric-basis">During market hours (9:30–16:00 ET)</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-phase">Phase 2 — Storage</div>
+        <div class="metric-name">Query Latency (p99)</div>
+        <div class="metric-target">≤ 200 ms</div>
+        <div class="metric-basis">Historical OHLCV API endpoint</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-phase">Phase 3 — Sentiment</div>
+        <div class="metric-name">News Refresh Rate</div>
+        <div class="metric-target">≤ 15 min</div>
+        <div class="metric-basis">Max age of news sentiment per symbol</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-phase">Phase 3 — Sentiment</div>
+        <div class="metric-name">Sentiment Coverage</div>
+        <div class="metric-target">&gt; 80%</div>
+        <div class="metric-basis">Watchlist symbols with a signal today</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-phase">Phase 4 — Prediction</div>
+        <div class="metric-name">Directional Accuracy</div>
+        <div class="metric-target">&gt; 52%</div>
+        <div class="metric-basis">Walk-forward backtest (random = 50%)</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-phase">Phase 5 — API</div>
+        <div class="metric-name">API Uptime</div>
+        <div class="metric-target">&gt; 99%</div>
+        <div class="metric-basis">All REST/WS endpoints measured daily</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-phase">All Phases</div>
+        <div class="metric-name">Infrastructure Cost</div>
+        <div class="metric-target">≤ $60/mo</div>
+        <div class="metric-basis">All-in monthly spend (VPS scenario)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 5. Stakeholders ────────────────────────────────────────────── -->
+  <div class="section" id="stakeholders">
+    <div class="section-header">
+      <div class="section-num-block">05</div>
+      <div>
+        <h2>Stakeholders &amp; Governance</h2>
+        <div class="section-desc">Who is involved and who decides what</div>
+      </div>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Stakeholder</th><th>Role</th><th>Interest</th>
+            <th style="text-align:center">Arch.</th>
+            <th style="text-align:center">Budget</th>
+            <th style="text-align:center">Data Src.</th>
+            <th style="text-align:center">ML Scope</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Kshitij Pathak</td><td>Owner / Lead Engineer</td>
+            <td>Build, learn, invest time</td>
+            <td style="text-align:center"><span class="raci-dot raci-r">R</span></td>
+            <td style="text-align:center"><span class="raci-dot raci-r">R</span></td>
+            <td style="text-align:center"><span class="raci-dot raci-r">R</span></td>
+            <td style="text-align:center"><span class="raci-dot raci-r">R</span></td>
+          </tr>
+          <tr>
+            <td>Business Stakeholders</td><td>Reviewers / Advisors</td>
+            <td>Validate scope, cost, and strategic value</td>
+            <td style="text-align:center"><span class="raci-dot raci-c">C</span></td>
+            <td style="text-align:center"><span class="raci-dot raci-a">A</span></td>
+            <td style="text-align:center"><span class="raci-dot raci-c">C</span></td>
+            <td style="text-align:center"><span class="raci-dot raci-c">C</span></td>
+          </tr>
+          <tr>
+            <td>Future Users</td><td>End Users (personal)</td>
+            <td>Usable API, reliable data</td>
+            <td style="text-align:center"><span class="raci-dot raci-i">I</span></td>
+            <td style="text-align:center"><span class="raci-dot raci-i">I</span></td>
+            <td style="text-align:center"><span class="raci-dot raci-i">I</span></td>
+            <td style="text-align:center"><span class="raci-dot raci-i">I</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-family:-apple-system,sans-serif;font-size:12px;color:var(--text-dim);margin-top:-12px;margin-bottom:0;">
+      <strong style="color:var(--text-muted);">R</strong> = Responsible &nbsp;·&nbsp;
+      <strong style="color:var(--text-muted);">A</strong> = Accountable &nbsp;·&nbsp;
+      <strong style="color:var(--text-muted);">C</strong> = Consulted &nbsp;·&nbsp;
+      <strong style="color:var(--text-muted);">I</strong> = Informed
+    </p>
+  </div>
+
+  <!-- ── 6. Cost Plan ───────────────────────────────────────────────── -->
+  <div class="section" id="cost">
+    <div class="section-header">
+      <div class="section-num-block">06</div>
+      <div>
+        <h2>Cost Plan</h2>
+        <div class="section-desc">Full financial picture across three deployment scenarios</div>
+      </div>
+    </div>
+
+    <div class="cost-hero">
+      <div class="cost-hero-left">
+        <div class="cost-hero-eyebrow">Cost Summary</div>
+        <div class="cost-hero-title">Three scenarios — from laptop to cloud</div>
+        <div class="cost-hero-sub">
+          The project can run at zero cost during development. Production
+          deployment on a single cloud server costs roughly €28–$60/month.
+          A full AWS deployment is possible but costs 6–10× more for no
+          meaningful reliability benefit at this scale.
+        </div>
+      </div>
+      <div class="cost-hero-scenarios">
+        <div class="cost-scenario">
+          <div class="cost-scenario-name">Local Dev</div>
+          <div class="cost-scenario-val cs-green">$0</div>
+          <div class="cost-scenario-sub">/ month — free tiers + Docker</div>
+        </div>
+        <div class="cost-scenario">
+          <div class="cost-scenario-name">VPS (Recommended)</div>
+          <div class="cost-scenario-val cs-yellow">~$45</div>
+          <div class="cost-scenario-sub">/ month — Hetzner CX41</div>
+        </div>
+        <div class="cost-scenario">
+          <div class="cost-scenario-name">AWS (Full Cloud)</div>
+          <div class="cost-scenario-val cs-red">~$300</div>
+          <div class="cost-scenario-sub">/ month — EC2 + RDS + MSK</div>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="sub-heading">Data API Cost Breakdown</h3>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr><th>API / Service</th><th>Free Limit</th><th>Paid Option</th><th>MVP Sufficient?</th><th>Annual Cost (free)</th></tr>
+        </thead>
+        <tbody>
+          <tr class="highlight-row">
+            <td>Finnhub (prices + news)</td>
+            <td>60 req/min · 50 WS symbols</td>
+            <td>$0 — no upgrade needed for MVP</td>
+            <td class="td-green">Yes, up to ~50 symbols</td>
+            <td class="td-green">$0</td>
+          </tr>
+          <tr>
+            <td>NewsAPI.org</td>
+            <td>100 requests / day (dev)</td>
+            <td>$449/mo (business)</td>
+            <td class="td-green">Yes for prototype</td>
+            <td class="td-green">$0</td>
+          </tr>
+          <tr>
+            <td>StockTwits</td>
+            <td>Unlimited (free API)</td>
+            <td>No paid tier required</td>
+            <td class="td-green">Yes</td>
+            <td class="td-green">$0</td>
+          </tr>
+          <tr>
+            <td>Reddit API</td>
+            <td>60 req/min (OAuth)</td>
+            <td>No paid tier required</td>
+            <td class="td-green">Yes</td>
+            <td class="td-green">$0</td>
+          </tr>
+          <tr>
+            <td>Polygon.io (if scaling)</td>
+            <td>15-min delayed only</td>
+            <td>$29/mo for real-time</td>
+            <td class="td-orange">Only if &gt;50 real-time symbols needed</td>
+            <td class="td-orange">$0 or $348/yr</td>
+          </tr>
+          <tr>
+            <td>LLM API (sentiment, optional)</td>
+            <td>N/A — self-hosted VADER free</td>
+            <td>~$5–10/mo (low volume)</td>
+            <td class="td-green">Not needed — use VADER/FinBERT</td>
+            <td class="td-green">$0</td>
+          </tr>
+          <tr style="font-weight:700;">
+            <td>API Subtotal (MVP)</td>
+            <td colspan="2"></td>
+            <td></td>
+            <td class="td-green">$0/year</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 class="sub-heading">Infrastructure Cost Breakdown (Monthly)</h3>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Component</th>
+            <th>Purpose</th>
+            <th>Local / Docker</th>
+            <th>Hetzner VPS <span style="font-weight:400;opacity:.7">(Recommended)</span></th>
+            <th>AWS</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Compute (Spring Boot app)</td>
+            <td>Backend API + ingestion</td>
+            <td class="td-green">$0</td>
+            <td class="td-green">Shared on CX41</td>
+            <td class="td-orange">EC2 t3.medium ~$30/mo</td>
+          </tr>
+          <tr>
+            <td>Time-series database</td>
+            <td>Historical price + sentiment storage</td>
+            <td class="td-green">$0</td>
+            <td class="td-green">Shared on CX41</td>
+            <td class="td-orange">RDS t3.medium ~$55/mo</td>
+          </tr>
+          <tr>
+            <td>Cache (Redis)</td>
+            <td>Latest-price hot reads</td>
+            <td class="td-green">$0</td>
+            <td class="td-green">Shared on CX41</td>
+            <td class="td-orange">ElastiCache t3.micro ~$15/mo</td>
+          </tr>
+          <tr>
+            <td>Message broker (Kafka)</td>
+            <td>Event streaming backbone</td>
+            <td class="td-green">$0</td>
+            <td class="td-green">Shared on CX41</td>
+            <td class="td-orange">MSK single-broker ~$80/mo</td>
+          </tr>
+          <tr>
+            <td>ML sidecar (Python)</td>
+            <td>Sentiment scoring + prediction</td>
+            <td class="td-green">$0</td>
+            <td class="td-green">Shared on CX41</td>
+            <td class="td-orange">ECS Fargate 0.5 vCPU ~$20/mo</td>
+          </tr>
+          <tr>
+            <td>Observability (Grafana + Prometheus)</td>
+            <td>Dashboards + alerting</td>
+            <td class="td-green">$0</td>
+            <td class="td-green">Shared on CX41</td>
+            <td class="td-orange">Managed Grafana ~$9/mo</td>
+          </tr>
+          <tr>
+            <td>Storage (100 GB, 1 yr data)</td>
+            <td>Persistent DB volumes</td>
+            <td class="td-green">$0 (local disk)</td>
+            <td class="td-green">Included in CX41</td>
+            <td class="td-orange">EBS gp3 ~$8/mo</td>
+          </tr>
+          <tr>
+            <td>Server itself</td>
+            <td>16 vCPU · 32 GB RAM · 240 GB NVMe</td>
+            <td class="td-green">$0 (laptop)</td>
+            <td class="td-orange">Hetzner CX41 ~€28/mo (~$30)</td>
+            <td class="td-red">Distributed across services</td>
+          </tr>
+          <tr style="font-weight:700;font-size:14px;">
+            <td>Monthly Total</td>
+            <td></td>
+            <td class="td-green">$0</td>
+            <td class="td-orange">~$30–45/mo</td>
+            <td class="td-red">~$217–400/mo</td>
+          </tr>
+          <tr style="font-weight:700;font-size:14px;">
+            <td>Annual Total</td>
+            <td></td>
+            <td class="td-green">$0</td>
+            <td class="td-orange">~$360–540/yr</td>
+            <td class="td-red">~$2,600–4,800/yr</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 class="sub-heading">One-Time &amp; Opportunity Costs</h3>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Item</th><th>Estimate</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Engineering time (build)</td>
+            <td class="td-orange">~80–120 hours</td>
+            <td>7–10 weeks at ~12 hrs/week; personal project so no cash cost</td>
+          </tr>
+          <tr>
+            <td>Engineering time (ongoing maintenance)</td>
+            <td class="td-orange">~2–4 hours/week</td>
+            <td>API changes, model retraining, dependency updates</td>
+          </tr>
+          <tr>
+            <td>Domain name (optional)</td>
+            <td class="td-green">~$12/yr</td>
+            <td>Only if exposing the API externally</td>
+          </tr>
+          <tr>
+            <td>SSL certificate</td>
+            <td class="td-green">$0</td>
+            <td>Let's Encrypt via Caddy or Nginx</td>
+          </tr>
+          <tr>
+            <td>Backfill data purchase (optional)</td>
+            <td class="td-orange">$0–50 one-time</td>
+            <td>Alpha Vantage premium backfill; free tier works for &lt;20 yr history</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout callout-green">
+      <span class="callout-icon">💡</span>
+      <div class="callout-body">
+        <strong>Recommended cost path:</strong> Run all phases on a developer laptop (Docker Compose, $0)
+        through Week 7. At Phase 5, migrate to a single <strong>Hetzner CX41</strong> server (~€28/mo).
+        This machine has 16 vCPUs and 32 GB RAM — comfortably above what all services combined require.
+        Only consider AWS if multi-region availability or managed backups become a requirement.
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 7. Delivery Milestones ─────────────────────────────────────── -->
+  <div class="section" id="timeline">
+    <div class="section-header">
+      <div class="section-num-block">07</div>
+      <div>
+        <h2>Delivery Milestones</h2>
+        <div class="section-desc">Business-level checkpoints — not technical sprints</div>
+      </div>
+    </div>
+
+    <div class="milestone-row">
+      <div class="milestone-time">
+        <div class="milestone-time-label">Weeks 1–2</div>
+        <div class="milestone-time-sub">~June 2026</div>
+      </div>
+      <div class="milestone-body">
+        <div class="milestone-card">
+          <div class="milestone-card-title">Milestone 1 — Live Price Feed Working</div>
+          <div class="milestone-card-desc">
+            Real stock prices flowing into the system in real-time. The first observable,
+            demonstrable output of the project.
+          </div>
+          <ul class="milestone-deliverables">
+            <li>Live tick data for a 10-symbol watchlist (e.g. AAPL, MSFT, NVDA)</li>
+            <li>Data pipeline confirmed end-to-end (source → Kafka)</li>
+            <li>Local development environment fully operational</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="milestone-row">
+      <div class="milestone-time">
+        <div class="milestone-time-label">Week 3</div>
+        <div class="milestone-time-sub">~July 2026</div>
+      </div>
+      <div class="milestone-body">
+        <div class="milestone-card">
+          <div class="milestone-card-title">Milestone 2 — Historical Data Stored & Queryable</div>
+          <div class="milestone-card-desc">
+            All incoming prices are persisted. Time-range queries return OHLCV candles.
+            The system now has a growing historical record.
+          </div>
+          <ul class="milestone-deliverables">
+            <li>Database operational with data flowing in continuously</li>
+            <li>REST API returns historical OHLCV for any date range</li>
+            <li>1-year backfill loaded for the watchlist symbols</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="milestone-row">
+      <div class="milestone-time">
+        <div class="milestone-time-label">Week 4</div>
+        <div class="milestone-time-sub">~July 2026</div>
+      </div>
+      <div class="milestone-body">
+        <div class="milestone-card">
+          <div class="milestone-card-title">Milestone 3 — Sentiment Intelligence Live</div>
+          <div class="milestone-card-desc">
+            News and social media sentiment scores are attached to each symbol. A consumer
+            can now see whether market conversation is trending positive or negative.
+          </div>
+          <ul class="milestone-deliverables">
+            <li>News sentiment refreshed every 15 minutes per symbol</li>
+            <li>StockTwits social sentiment collected and scored</li>
+            <li>API returns combined sentiment score per symbol</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="milestone-row">
+      <div class="milestone-time">
+        <div class="milestone-time-label">Weeks 5–6</div>
+        <div class="milestone-time-sub">~Aug 2026</div>
+      </div>
+      <div class="milestone-body">
+        <div class="milestone-card">
+          <div class="milestone-card-title">Milestone 4 — First Prediction Model Deployed</div>
+          <div class="milestone-card-desc">
+            The system produces a directional signal (up / down / neutral) for each symbol,
+            with a confidence score. Backtesting confirms accuracy above the 50% random baseline.
+          </div>
+          <ul class="milestone-deliverables">
+            <li>Prediction endpoint live: direction + confidence per symbol</li>
+            <li>Model accuracy &gt; 52% on walk-forward backtest</li>
+            <li>All predictions stored for ongoing accuracy tracking</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="milestone-row">
+      <div class="milestone-time">
+        <div class="milestone-time-label">Week 7+</div>
+        <div class="milestone-time-sub">~Aug–Sep 2026</div>
+      </div>
+      <div class="milestone-body">
+        <div class="milestone-card">
+          <div class="milestone-card-title">Milestone 5 — Full Platform &amp; Optional Cloud Deploy</div>
+          <div class="milestone-card-desc">
+            Complete REST + WebSocket API, monitoring dashboards, and optional deployment to a
+            cloud server for always-on access.
+          </div>
+          <ul class="milestone-deliverables">
+            <li>All API endpoints documented and live</li>
+            <li>Grafana dashboard: ingestion health, sentiment trends, model performance</li>
+            <li>Optional: deployed to Hetzner VPS (~€28/mo)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 8. Risk Register ───────────────────────────────────────────── -->
+  <div class="section" id="risks">
+    <div class="section-header">
+      <div class="section-num-block">08</div>
+      <div>
+        <h2>Risk Register</h2>
+        <div class="section-desc">Business and operational risks with mitigations</div>
+      </div>
+    </div>
+
+    <div class="risk-matrix">
+      <div class="risk-card">
+        <div class="risk-card-header">
+          <span class="risk-card-title">Free API Tier Changes</span>
+          <span class="tag tag-orange">Medium Risk</span>
+        </div>
+        <div class="risk-card-body">
+          Data providers (Finnhub, NewsAPI, Reddit) may tighten or monetise their free
+          tiers. This has happened before (Twitter/X in 2023) and could remove a
+          data source with no notice.
+        </div>
+        <div class="risk-card-footer">
+          <strong>Mitigation:</strong> Build provider abstraction layer so any source is swappable.
+          Maintain a list of 2 fallback providers per data type.
+        </div>
+      </div>
+
+      <div class="risk-card">
+        <div class="risk-card-header">
+          <span class="risk-card-title">Prediction Accuracy Below Expectation</span>
+          <span class="tag tag-red">High Risk</span>
+        </div>
+        <div class="risk-card-body">
+          Stock price prediction is a hard, well-studied problem. It is likely that
+          the first model version will only marginally beat a random baseline.
+          Stakeholders may interpret this as project failure.
+        </div>
+        <div class="risk-card-footer">
+          <strong>Mitigation:</strong> Set expectations explicitly (see Section 1 caveat).
+          Frame the value as the pipeline and signal tooling, not accuracy alone.
+        </div>
+      </div>
+
+      <div class="risk-card">
+        <div class="risk-card-header">
+          <span class="risk-card-title">Scope Creep into Live Trading</span>
+          <span class="tag tag-red">High Risk</span>
+        </div>
+        <div class="risk-card-body">
+          Once predictions are running, there will be pressure to connect the system to
+          a brokerage and execute trades automatically. This introduces capital risk,
+          regulatory considerations, and a completely different risk profile.
+        </div>
+        <div class="risk-card-footer">
+          <strong>Mitigation:</strong> Automated trading is explicitly out of scope (BR constraints).
+          Any future expansion requires a separate business case and risk review.
+        </div>
+      </div>
+
+      <div class="risk-card">
+        <div class="risk-card-header">
+          <span class="risk-card-title">Maintenance Burden Over Time</span>
+          <span class="tag tag-orange">Medium Risk</span>
+        </div>
+        <div class="risk-card-body">
+          APIs change, libraries deprecate, models drift. A platform like this requires
+          ongoing attention — estimated 2–4 hours per week — which may compete with
+          other priorities.
+        </div>
+        <div class="risk-card-footer">
+          <strong>Mitigation:</strong> Modular architecture makes individual components
+          maintainable in isolation. Observability alerts surface issues proactively.
+        </div>
+      </div>
+
+      <div class="risk-card">
+        <div class="risk-card-header">
+          <span class="risk-card-title">Data Quality Issues</span>
+          <span class="tag tag-orange">Medium Risk</span>
+        </div>
+        <div class="risk-card-body">
+          Free-tier market data can include bad ticks, stale prices, and gaps during
+          low-liquidity periods. Feeding bad data into the model will produce
+          unreliable predictions.
+        </div>
+        <div class="risk-card-footer">
+          <strong>Mitigation:</strong> Implement an input validation layer in the ingestion
+          pipeline. Flag anomalous ticks (price deviation &gt;5% in &lt;1 min) before storage.
+        </div>
+      </div>
+
+      <div class="risk-card">
+        <div class="risk-card-header">
+          <span class="risk-card-title">Infrastructure Cost Overrun</span>
+          <span class="tag tag-green">Low Risk</span>
+        </div>
+        <div class="risk-card-body">
+          If deployed on AWS and services scale unexpectedly, monthly costs could
+          exceed projections. AWS billing is notoriously difficult to predict without
+          careful capacity planning.
+        </div>
+        <div class="risk-card-footer">
+          <strong>Mitigation:</strong> Use Hetzner VPS (fixed price) not AWS for personal
+          deployment. Set a hard AWS billing alert at $100/mo if AWS is ever used.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 9. Assumptions & Constraints ──────────────────────────────── -->
+  <div class="section" id="assumptions">
+    <div class="section-header">
+      <div class="section-num-block">09</div>
+      <div>
+        <h2>Assumptions &amp; Constraints</h2>
+        <div class="section-desc">What this plan depends on being true</div>
+      </div>
+    </div>
+
+    <h3 class="sub-heading">Assumptions</h3>
+    <ul class="assumption-list">
+      <li>Finnhub's free WebSocket tier (50 symbols, 60 req/min) will remain available in its current form throughout the build period.</li>
+      <li>The project is for personal and educational use only. Commercial redistribution of data or signals may require paid data licenses — this has not been assessed.</li>
+      <li>The developer (owner) will spend approximately 10–15 hours per week on the project during the active build phases.</li>
+      <li>Prediction accuracy is not expected to support financial decisions on its own. The platform is a monitoring and analysis tool, not a trading system.</li>
+      <li>The hardware available for local development has at least 8 GB RAM (16 GB recommended to run FinBERT + all Docker services simultaneously).</li>
+      <li>The watchlist will initially be limited to US equities traded on NYSE/NASDAQ. Extending to other exchanges requires additional data source evaluation.</li>
+    </ul>
+
+    <h3 class="sub-heading">Constraints</h3>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Constraint</th><th>Type</th><th>Impact</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Finnhub free tier: max 50 real-time WS symbols</td>
+            <td><span class="tag tag-orange">Technical</span></td>
+            <td>Watchlist capped at ~50 symbols on free plan; upgrade to Polygon.io at $29/mo if more needed</td>
+          </tr>
+          <tr>
+            <td>NewsAPI dev limit: 100 req/day</td>
+            <td><span class="tag tag-orange">Technical</span></td>
+            <td>Restricts polling to ~4 req/hour across all symbols; mitigated by RSS fallback</td>
+          </tr>
+          <tr>
+            <td>No live trading</td>
+            <td><span class="tag tag-red">Business</span></td>
+            <td>Hard scope boundary — automated trade execution is explicitly excluded from v1</td>
+          </tr>
+          <tr>
+            <td>Single developer</td>
+            <td><span class="tag tag-purple">Resource</span></td>
+            <td>All engineering, testing, and operations carried by one person; timeline reflects this</td>
+          </tr>
+          <tr>
+            <td>Open-source stack only</td>
+            <td><span class="tag tag-blue">Cost</span></td>
+            <td>All components must have a free self-hosted option; no SaaS dependencies at the core</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── 10. Business Decisions Required ───────────────────────────── -->
+  <div class="section" id="decisions">
+    <div class="section-header">
+      <div class="section-num-block">10</div>
+      <div>
+        <h2>Business Decisions Required</h2>
+        <div class="section-desc">Choices that need to be made — with cost and strategic implications</div>
+      </div>
+    </div>
+
+    <div class="callout callout-orange">
+      <span class="callout-icon">📋</span>
+      <div class="callout-body">
+        The six decisions below are ordered by when they block progress. Decisions D1 and D5 must be
+        made before Phase 1 begins. Decisions D2–D4 must be made before Phase 3. Decision D6
+        must be made before Phase 5.
+      </div>
+    </div>
+
+    <!-- D1 -->
+    <div class="decision-card">
+      <div class="decision-header">
+        <span class="decision-num">D1</span>
+        <span class="decision-title">Which database will store time-series price data?</span>
+        <span class="decision-urgency"><span class="tag tag-red">Blocking — needed before Phase 2</span></span>
+      </div>
+      <div class="decision-body">
+        <p class="decision-context">
+          The choice of database determines how price history is stored, how fast it can be
+          queried, and how easy it is to maintain long-term. This is the most consequential
+          technical decision with direct cost and operational implications.
+        </p>
+        <div class="decision-options">
+          <div class="decision-option recommended">
+            <span class="option-label opt-rec">★ REC</span>
+            <div class="option-content">
+              <div class="option-title">TimescaleDB (PostgreSQL extension)</div>
+              <div class="option-desc">Standard SQL query language. Automatic time-based data partitioning. Works with existing Spring JDBC code — no new libraries needed. Free open-source. Industry standard for time-series on PostgreSQL.</div>
+              <div class="option-cost">Cost: $0 self-hosted · $0 additional dev time</div>
+            </div>
+          </div>
+          <div class="decision-option">
+            <span class="option-label opt-b">B</span>
+            <div class="option-content">
+              <div class="option-title">InfluxDB</div>
+              <div class="option-desc">Purpose-built time-series database with excellent performance. Different query language (InfluxQL/SQL hybrid) requires learning and new library integration in Spring.</div>
+              <div class="option-cost">Cost: $0 self-hosted · ~5–8 extra hours integration</div>
+            </div>
+          </div>
+          <div class="decision-option">
+            <span class="option-label opt-c">C</span>
+            <div class="option-content">
+              <div class="option-title">Plain PostgreSQL</div>
+              <div class="option-desc">Simplest option, widely known. Requires manual table partitioning by time window which adds complexity and degrades query performance at scale (&gt;1 year of tick data).</div>
+              <div class="option-cost">Cost: $0 · Works now but creates technical debt</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="decision-footer">
+        <strong>Implication of delay:</strong> Cannot build Phase 2 (persistent storage) until resolved.
+        <div class="decision-owner"><div class="owner-avatar">KP</div> Kshitij Pathak</div>
+      </div>
+    </div>
+
+    <!-- D2 -->
+    <div class="decision-card">
+      <div class="decision-header">
+        <span class="decision-num">D2</span>
+        <span class="decision-title">Which social media platforms will be included?</span>
+        <span class="decision-urgency"><span class="tag tag-orange">Needed before Phase 3</span></span>
+      </div>
+      <div class="decision-body">
+        <p class="decision-context">
+          Social media sentiment is a key signal differentiator. More platforms mean richer
+          sentiment coverage but more integration work and API maintenance. Twitter/X has
+          tightened access significantly since 2023.
+        </p>
+        <div class="decision-options">
+          <div class="decision-option recommended">
+            <span class="option-label opt-rec">★ REC</span>
+            <div class="option-content">
+              <div class="option-title">StockTwits + Reddit</div>
+              <div class="option-desc">StockTwits is finance-specific (built-in $TICKER tagging, no noise filtering needed). Reddit covers retail investor crowd sentiment on r/stocks and r/wallstreetbets. Both APIs are free, stable, and well-documented.</div>
+              <div class="option-cost">Cost: $0 · ~2 weeks integration time total</div>
+            </div>
+          </div>
+          <div class="decision-option">
+            <span class="option-label opt-b">B</span>
+            <div class="option-content">
+              <div class="option-title">StockTwits only (MVP)</div>
+              <div class="option-desc">Fastest path to Phase 3. StockTwits alone provides a usable signal. Reddit can be added in a later iteration without rework.</div>
+              <div class="option-cost">Cost: $0 · ~1 week integration</div>
+            </div>
+          </div>
+          <div class="decision-option">
+            <span class="option-label opt-c">C</span>
+            <div class="option-content">
+              <div class="option-title">Include Twitter/X</div>
+              <div class="option-desc">Adds broader reach, but the free API tier was heavily restricted in 2023–2024. Reliability for this use case is uncertain and may require a paid plan ($100+/mo).</div>
+              <div class="option-cost">Cost: $0–$100+/mo · High maintenance risk</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="decision-footer">
+        <strong>Implication of delay:</strong> Phase 3 (sentiment) cannot finalise data source integration.
+        <div class="decision-owner"><div class="owner-avatar">KP</div> Kshitij Pathak</div>
+      </div>
+    </div>
+
+    <!-- D3 -->
+    <div class="decision-card">
+      <div class="decision-header">
+        <span class="decision-num">D3</span>
+        <span class="decision-title">Which NLP model will score sentiment?</span>
+        <span class="decision-urgency"><span class="tag tag-orange">Needed before Phase 3</span></span>
+      </div>
+      <div class="decision-body">
+        <p class="decision-context">
+          The sentiment scoring model determines how accurately news and social posts are
+          classified as bearish, neutral, or bullish. There is a direct tradeoff between
+          accuracy, cost, and hardware requirements.
+        </p>
+        <div class="decision-options">
+          <div class="decision-option recommended">
+            <span class="option-label opt-rec">★ REC</span>
+            <div class="option-content">
+              <div class="option-title">VADER (Phase 3) → FinBERT (Phase 4+)</div>
+              <div class="option-desc">Start with VADER: rule-based, instant, zero hardware requirements, ~65% accuracy. Graduate to FinBERT (finance-tuned deep learning model, ~87% accuracy) when the pipeline is stable. Both run locally at no cost.</div>
+              <div class="option-cost">Cost: $0 · VADER: &lt;1ms/text · FinBERT: needs ≥4 GB RAM</div>
+            </div>
+          </div>
+          <div class="decision-option">
+            <span class="option-label opt-b">B</span>
+            <div class="option-content">
+              <div class="option-title">FinBERT from day one</div>
+              <div class="option-desc">Skip VADER and start with the higher-accuracy model. Requires Docker container with ≥4 GB RAM allocation. Good choice if hardware is not a constraint.</div>
+              <div class="option-cost">Cost: $0 · Requires developer machine with ≥8 GB free RAM</div>
+            </div>
+          </div>
+          <div class="decision-option">
+            <span class="option-label opt-c">C</span>
+            <div class="option-content">
+              <div class="option-title">LLM API (Claude / OpenAI)</div>
+              <div class="option-desc">Highest accuracy (~90%+), zero local hardware requirement. Introduces per-call API cost and an external dependency. Suitable only if call volume is low and accuracy is critical from the start.</div>
+              <div class="option-cost">Cost: ~$3–10/mo at low volume · API dependency risk</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="decision-footer">
+        <strong>Implication of delay:</strong> Sentiment pipeline cannot be built without a scoring model chosen.
+        <div class="decision-owner"><div class="owner-avatar">KP</div> Kshitij Pathak</div>
+      </div>
+    </div>
+
+    <!-- D4 -->
+    <div class="decision-card">
+      <div class="decision-header">
+        <span class="decision-num">D4</span>
+        <span class="decision-title">Where will the platform be hosted in production?</span>
+        <span class="decision-urgency"><span class="tag tag-blue">Needed before Phase 5</span></span>
+      </div>
+      <div class="decision-body">
+        <p class="decision-context">
+          Production hosting determines always-on availability, total running cost, and
+          operational complexity. For a personal project the key question is: does it need to
+          run 24/7 without a developer laptop being on?
+        </p>
+        <div class="decision-options">
+          <div class="decision-option recommended">
+            <span class="option-label opt-rec">★ REC</span>
+            <div class="option-content">
+              <div class="option-title">Hetzner VPS (CX41) — Single Server</div>
+              <div class="option-desc">16 vCPU, 32 GB RAM, 240 GB NVMe. All services on one server via Docker Compose. Fixed monthly price, European data center, excellent value. No cloud complexity.</div>
+              <div class="option-cost">Cost: ~€28/mo (~$30) · Fixed, predictable billing</div>
+            </div>
+          </div>
+          <div class="decision-option">
+            <span class="option-label opt-b">B</span>
+            <div class="option-content">
+              <div class="option-title">Local only (Developer Laptop)</div>
+              <div class="option-desc">No monthly cost but system only runs when the laptop is on. Suitable for development and testing phases (Phases 1–4) but not for always-on monitoring.</div>
+              <div class="option-cost">Cost: $0 · No availability SLA · Suitable for Phases 1–4</div>
+            </div>
+          </div>
+          <div class="decision-option">
+            <span class="option-label opt-c">C</span>
+            <div class="option-content">
+              <div class="option-title">AWS (EC2 + RDS + MSK)</div>
+              <div class="option-desc">Managed services, auto-scaling, high availability. Significantly higher cost for no meaningful benefit at personal-project scale. Recommended only if multi-region or enterprise SLA is required.</div>
+              <div class="option-cost">Cost: ~$220–400/mo · Complex billing · Overkill for MVP</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="decision-footer">
+        <strong>Implication of delay:</strong> Platform stays on laptop — no impact on build, only on always-on availability.
+        <div class="decision-owner"><div class="owner-avatar">KP</div> Kshitij Pathak</div>
+      </div>
+    </div>
+
+    <!-- D5 -->
+    <div class="decision-card">
+      <div class="decision-header">
+        <span class="decision-num">D5</span>
+        <span class="decision-title">What is the initial symbol watchlist?</span>
+        <span class="decision-urgency"><span class="tag tag-red">Blocking — needed before Phase 1</span></span>
+      </div>
+      <div class="decision-body">
+        <p class="decision-context">
+          The watchlist determines which stocks are monitored, stored, and predicted. The free
+          Finnhub WebSocket tier supports up to 50 simultaneous real-time symbols.
+          The choice affects data storage growth, API rate limit planning, and ML training volume.
+        </p>
+        <div class="decision-options">
+          <div class="decision-option recommended">
+            <span class="option-label opt-rec">★ REC</span>
+            <div class="option-content">
+              <div class="option-title">Fixed list of 10–20 high-interest symbols</div>
+              <div class="option-desc">e.g. AAPL, MSFT, NVDA, TSLA, AMZN, GOOGL, META, JPM, BAC, SPY. Small enough to manage, liquid enough for reliable data and meaningful ML training.</div>
+              <div class="option-cost">Fits well within free Finnhub WS limit</div>
+            </div>
+          </div>
+          <div class="decision-option">
+            <span class="option-label opt-b">B</span>
+            <div class="option-content">
+              <div class="option-title">S&P 500 top 50 by market cap</div>
+              <div class="option-desc">Broader coverage but approaches the 50-symbol free WebSocket limit. Good for a comprehensive US equity monitor; requires slightly more careful API rate management.</div>
+              <div class="option-cost">Approaches Finnhub free limit; may require Polygon.io at $29/mo</div>
+            </div>
+          </div>
+          <div class="decision-option">
+            <span class="option-label opt-c">C</span>
+            <div class="option-content">
+              <div class="option-title">User-defined at runtime (config file)</div>
+              <div class="option-desc">Most flexible — watchlist is loaded from a config file and can be changed without code changes. Slightly more build effort but enables future expansion without redeployment.</div>
+              <div class="option-cost">~2–4 extra hours to implement config loading</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="decision-footer">
+        <strong>Implication of delay:</strong> Cannot start Phase 1 without knowing which symbols to subscribe to.
+        <div class="decision-owner"><div class="owner-avatar">KP</div> Kshitij Pathak</div>
+      </div>
+    </div>
+
+    <!-- D6 -->
+    <div class="decision-card">
+      <div class="decision-header">
+        <span class="decision-num">D6</span>
+        <span class="decision-title">What prediction horizon and target should the model use?</span>
+        <span class="decision-urgency"><span class="tag tag-blue">Needed before Phase 4</span></span>
+      </div>
+      <div class="decision-body">
+        <p class="decision-context">
+          The prediction target defines what the ML model is trained to do. Different horizons
+          have different difficulty levels, different use cases, and require different evaluation
+          methods. This choice also determines what constitutes a "correct" prediction.
+        </p>
+        <div class="decision-options">
+          <div class="decision-option recommended">
+            <span class="option-label opt-rec">★ REC</span>
+            <div class="option-content">
+              <div class="option-title">Binary direction over next 1 hour (Up / Down)</div>
+              <div class="option-desc">Simplest target: will the price be higher or lower in 1 hour? Easy to evaluate, clear baseline (50% random), and provides a tradeable signal. Excludes "neutral" to keep the problem binary.</div>
+              <div class="option-cost">Simplest evaluation · Most comparable to literature benchmarks</div>
+            </div>
+          </div>
+          <div class="decision-option">
+            <span class="option-label opt-b">B</span>
+            <div class="option-content">
+              <div class="option-title">Three-class direction: Up / Neutral / Down (EOD)</div>
+              <div class="option-desc">End-of-day prediction with a neutral band. More realistic but harder to evaluate and models tend to over-predict "neutral." Useful if the goal is a daily morning signal.</div>
+              <div class="option-cost">More complex evaluation · Harder to show value at first</div>
+            </div>
+          </div>
+          <div class="decision-option">
+            <span class="option-label opt-c">C</span>
+            <div class="option-content">
+              <div class="option-title">Percentage price change range</div>
+              <div class="option-desc">Predict the magnitude of movement, not just direction. Much harder problem (regression vs. classification), requires more data and more careful feature engineering. Not recommended for Phase 4.</div>
+              <div class="option-cost">Significantly more complex · Best deferred to Phase 5+</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="decision-footer">
+        <strong>Implication of delay:</strong> ML features and training pipeline cannot be finalised.
+        <div class="decision-owner"><div class="owner-avatar">KP</div> Kshitij Pathak</div>
+      </div>
+    </div>
+
+  </div><!-- /decisions -->
+
+  <!-- ── Footer ────────────────────────────────────────────────────── -->
+  <div class="footer">
+    <div class="footer-left">
+      <strong>Stockify</strong> · Business Requirements Document · Version 1.0 · June 2026 · Owner: Kshitij Pathak
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <span class="footer-confidential">Confidential</span>
+      <span class="footer-right">For stakeholder review only</span>
+    </div>
+  </div>
+
+</div><!-- /page-wrap -->
+</body>
+</html>
